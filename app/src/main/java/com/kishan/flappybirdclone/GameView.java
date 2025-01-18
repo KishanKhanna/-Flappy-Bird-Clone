@@ -1,14 +1,13 @@
+// GameView
 package com.kishan.flappybirdclone;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.drawable.shapes.OvalShape;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -26,7 +25,7 @@ import java.util.concurrent.BlockingDeque;
 public class GameView extends SurfaceView implements Runnable {
 
     private  Thread gameThread;
-    private boolean isPlaying = true;
+    private volatile boolean isPlaying = true;
 
     private SurfaceHolder holder;
 
@@ -50,12 +49,14 @@ public class GameView extends SurfaceView implements Runnable {
     private Paint highScorePaint;
     private int highScore = 0; // High score
 
-
-    // SharedPreferences for storing high score
-    private SharedPreferences sharedPreferences;
+    // playing audio
+    private SoundManager soundManager;
+    private SharedPreferencesManager sharedPreferencesManager;
 
     public GameView(Context context) {
         super(context);
+        //Initialize sharedPreferenceManager object
+        sharedPreferencesManager = new SharedPreferencesManager(context);
         holder = getHolder();
         holder.addCallback(new SurfaceHolder.Callback() {
             @Override
@@ -94,20 +95,21 @@ public class GameView extends SurfaceView implements Runnable {
 
         // Initialize score paint
         scorePaint = new Paint();
-        scorePaint.setColor(getResources().getColor(android.R.color.white)); // Set the score color
+        scorePaint.setColor(getResources().getColor(R.color.score)); // Set the score color
         scorePaint.setTextSize(80); // Set the text size
         scorePaint.setAntiAlias(true); // Smooth edges
         scorePaint.setTextAlign(Paint.Align.CENTER); // Center-align the text
 
         highScorePaint = new Paint();
-        highScorePaint.setColor(getResources().getColor(android.R.color.white)); // Set the score color
-        highScorePaint.setTextSize(20); // Set the text size
+        highScorePaint.setColor(getResources().getColor(R.color.score)); // Set the score color
+        highScorePaint.setTextSize(30); // Set the text size
         highScorePaint.setAntiAlias(true); // Smooth edges
         highScorePaint.setTextAlign(Paint.Align.CENTER); // Center-align the text
 
         // Initialize SharedPreferences
-        sharedPreferences = getContext().getSharedPreferences("FlappyBirdScores", Context.MODE_PRIVATE);
-        highScore = sharedPreferences.getInt("HighScore", 0); // Load saved high score
+        highScore = sharedPreferencesManager.getHighScorePreference();
+        soundManager = new SoundManager(context);
+
 
 
     }
@@ -137,9 +139,11 @@ public class GameView extends SurfaceView implements Runnable {
         if (birdY + bird.getHeight() > getHeight()) {
             birdY = getHeight() - bird.getHeight();
             isPlaying = false; // Game over if bird touches the bottom
+            soundManager.playDieSound(); //play die sound
         }
         if (checkCollision()){
             isPlaying=false;
+            soundManager.playHitSound();
             // Trigger vibration for 500ms
             if (vibrator != null && vibrator.hasVibrator()) {
                 vibrator.vibrate(300); // Vibrate for 500 milliseconds
@@ -147,9 +151,7 @@ public class GameView extends SurfaceView implements Runnable {
             // Save the high score if the current score exceeds it
             if (score > highScore) {
                 highScore = score;
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putInt("HighScore", highScore);
-                editor.apply();
+                sharedPreferencesManager.saveHighScorePreference(highScore);
             }
         }
 
@@ -187,35 +189,34 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawBitmap(bird,birdX,birdY,paint);
 
             // Draw score
-            canvas.drawText("High Score: " + String.valueOf(highScore), screenWidth / 2.0f, 80, highScorePaint);
-            canvas.drawText(String.valueOf(score), screenWidth / 2.0f, 150, scorePaint);
+            canvas.drawText("High Score: " + String.valueOf(highScore), screenWidth / 2.0f, 50, highScorePaint);
+            canvas.drawText(String.valueOf(score), screenWidth / 2.0f, 120, scorePaint);
 
             holder.unlockCanvasAndPost(canvas);
             //Log.d("GameView", "draw: if running");
         }
 
     }
-    private void control(){
-        try {
-            //to achieve desired fame rates
-
-            long startTime = System.nanoTime(); // Start measuring time for the frame
-            long frameTime = (System.nanoTime() - startTime) / 1000000; // Calculate frame time in ms
-            Thread.sleep(Math.max(0, 17 - frameTime)); // Sleep only for the remaining time
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    private void control() {
+        long startTime = System.nanoTime();
+        long sleepTime = (1000000000 / 60) - (System.nanoTime() - startTime);
+        if (sleepTime > 0) {
+            try {
+                Thread.sleep(sleepTime / 1000000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void pause(){
+    public void pause() {
         isPlaying = false;
-        try {
-            if (gameThread != null) {
-                gameThread.join();
+        if (gameThread != null) {
+            try {
+                gameThread.join(1000); // Timeout to prevent infinite waiting
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -229,8 +230,10 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN && isPlaying) {
             birdVelocity = -25; // Apply an upward force
+            soundManager.playFlapSound();
+
         }
         if (!isPlaying){
 
@@ -306,5 +309,6 @@ public class GameView extends SurfaceView implements Runnable {
         // If the distance is less than the radius, there's an intersection
         return (distanceX * distanceX + distanceY * distanceY) < (radius * radius);
     }
+
 
 }

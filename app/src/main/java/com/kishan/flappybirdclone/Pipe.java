@@ -29,8 +29,8 @@ public class Pipe {
         bottomPipe = BitmapFactory.decodeResource(res, R.drawable.pipe_down);
 
         // Scale bitmaps to match the new pipe dimensions
-        topPipe = Bitmap.createScaledBitmap(topPipe, PIPE_WIDTH, 1499, false);
-        bottomPipe = Bitmap.createScaledBitmap(bottomPipe, PIPE_WIDTH, 1499, false);
+        topPipe = Bitmap.createScaledBitmap(topPipe, PIPE_WIDTH, screenHeight-gap-MIN_PIPE_HEIGHT*2, false);
+        bottomPipe = Bitmap.createScaledBitmap(bottomPipe, PIPE_WIDTH, screenHeight, false);
 
         // Ensure there's always a visible portion of each pipe by constraining pipeStartY
         gap = 300; // Adjust gap size

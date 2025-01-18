@@ -12,11 +12,11 @@
         android:id="@+id/high_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="High Score: 0"
-        android:textColor="@android:color/white"
-        android:textSize="30sp"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
-        android:layout_centerHorizontal="true" />
+        android:text="High Score: 0"
+        android:textColor="#5E35B1"
+        android:textSize="30sp" />
 
     <ImageButton
         android:id="@+id/imageButton"
@@ -26,18 +26,35 @@
         android:background="#00FFFFFF"
         android:contentDescription="@string/play"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/play_button"
+        app:srcCompat="@drawable/play"
         tools:ignore="ImageContrastCheck" />
 
-    <TextView
-        android:id="@+id/textView"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/play"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/imageButton"
-        android:layout_marginTop="10dp"
-        android:textSize="38sp"
-        android:textColor="@color/white"/>
+        android:orientation="horizontal"
+        android:layout_centerInParent="true"
+        android:layout_below="@id/imageButton">
+
+        <ImageButton
+            android:id="@+id/icon_music"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="5dp"
+            android:background="#00FFFFFF"
+            android:contentDescription="music toggle"
+            android:scaleType="fitCenter"/>
+
+        <ImageButton
+            android:id="@+id/icon_sound"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="5dp"
+            android:background="#00FFFFFF"
+            android:contentDescription="sound toggle"
+            android:scaleType="fitCenter"/>
+
+    </LinearLayout>
+
 
 </RelativeLayout>
