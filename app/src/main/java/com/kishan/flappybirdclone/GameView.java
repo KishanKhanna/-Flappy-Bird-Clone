@@ -31,7 +31,8 @@ public class GameView extends SurfaceView implements Runnable {
 
     private Paint paint;
 
-    private Bitmap background,bird;
+    private Bitmap background,bird,retryButton;
+
     private float birdX, birdY, birdVelocity;
     private final float gravity = 2.0f; //gravity for bird
 
@@ -52,6 +53,7 @@ public class GameView extends SurfaceView implements Runnable {
     // playing audio
     private SoundManager soundManager;
     private SharedPreferencesManager sharedPreferencesManager;
+    private Rect retryButtonRect;
 
     public GameView(Context context) {
         super(context);
@@ -82,8 +84,13 @@ public class GameView extends SurfaceView implements Runnable {
         // Load Assets
         background = BitmapFactory.decodeResource(getResources(),R.drawable.bg);
         bird = BitmapFactory.decodeResource(getResources(),(R.drawable.bird));
+        retryButton = BitmapFactory.decodeResource(getResources(), R.drawable.retry);
 
         background = Bitmap.createScaledBitmap(background, screenWidth, screenHeight, false);
+        retryButton = Bitmap.createScaledBitmap(retryButton, 100,100, false);
+
+        retryButtonRect = new Rect(screenWidth / 2 - retryButton.getWidth() / 2, screenHeight / 2 + 100 - retryButton.getHeight() / 2,
+                screenWidth / 2 + retryButton.getWidth() / 2, screenHeight / 2 + 100 + retryButton.getHeight() / 2);
 
         //Initialize bird position
         birdX = screenWidth/4.0f; //Slight offset from center-left
@@ -192,6 +199,10 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawText("High Score: " + String.valueOf(highScore), screenWidth / 2.0f, 50, highScorePaint);
             canvas.drawText(String.valueOf(score), screenWidth / 2.0f, 120, scorePaint);
 
+            // Draw resume and retry buttons if paused
+            if (!isPlaying) {
+                canvas.drawBitmap(retryButton, retryButtonRect.left, retryButtonRect.top, paint);
+            }
             holder.unlockCanvasAndPost(canvas);
             //Log.d("GameView", "draw: if running");
         }
@@ -228,15 +239,28 @@ public class GameView extends SurfaceView implements Runnable {
             Log.d("GameView", "resume: GameThread Started");
         }
     }
+    private void restartGame() {
+        pipes.clear();
+        birdY = screenHeight / 2.0f; // Reset bird position
+        birdVelocity = 0; // Reset velocity
+        score = 0; // Reset score
+        isPlaying = true; // Reset game over state
+        resume();
+    }
 
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN && isPlaying) {
-            birdVelocity = -25; // Apply an upward force
-            soundManager.playFlapSound();
-
-        }
-        if (!isPlaying){
-
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            // Check if retry button is clicked
+            if (!isPlaying && retryButtonRect.contains((int) event.getX(), (int) event.getY())) {
+                Log.d("GameView", "onTouchEvent: retry");
+                restartGame();
+                return true;
+            }
+            // Other touch events
+            if (isPlaying) {
+                birdVelocity = -25; // Apply an upward force
+                soundManager.playFlapSound();
+            }
         }
         return true;
     }
