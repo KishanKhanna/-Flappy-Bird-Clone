@@ -3,7 +3,6 @@ package com.kishan.flappybirdclone;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -12,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.text.MessageFormat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("TAG", "MainActivity :onCreate: ");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -65,13 +65,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause(){
-        Log.d("TAG", "MainActivity:onPause");
         super.onPause();
         soundManager.pauseMusic();
     }
     @Override
     protected void onResume() {
-        Log.d("TAG", "MainActivity :onResume: ");
         super.onResume();
         loadHighScore();
         soundManager.playMusic();
@@ -83,11 +81,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Display the high score (optional)
         TextView highScoreTextView = findViewById(R.id.high_score);
-        highScoreTextView.setText("High Score: " + highScore);
+        highScoreTextView.setText(MessageFormat.format("{0}{1}", getString(R.string.high_score), highScore));
     }
     @Override
     protected void onDestroy() {
-        Log.d("TAG", "MainActivity :onDestroy: ");
         super.onDestroy();
         if (soundManager != null) {
             soundManager.release();
@@ -96,14 +93,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateToggleStates() {
-        Log.d("TAG", "updateToggleStates: run");
 
         isMusicEnabled = sharedPreferencesManager.getAudioPreference("MusicEnabled", true);
         isSoundEnabled = sharedPreferencesManager.getAudioPreference("SoundEnabled", true);
 
         // Update SoundManager
 
-        Log.d("TAG", "updateToggleStates:setMusicEnabled"+ (isMusicEnabled));
         soundManager.setMusicEnabled(isMusicEnabled);
 
         // Update icons
