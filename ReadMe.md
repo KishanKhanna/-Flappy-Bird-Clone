@@ -82,4 +82,4 @@ This repository contains a **Flappy Bird Clone** game developed for Android. The
 1. Clone the repository:
    ```bash
    git clone https://github.com/kishan/flappy-bird-clone.git
-   cd flappy-bird-clone
+   clone and open using android studio
