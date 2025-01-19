@@ -11,7 +11,7 @@ public class Pipe {
     private Bitmap topPipe, bottomPipe;
 
     private int x, topY, bottomY;
-    private static final int PIPE_WIDTH = 150; // Adjusted to match the new pipe width
+    private  int pipeWidth; // Adjusted to match the new pipe width
     private int gap;
 
     private final int screenHeight;
@@ -19,7 +19,7 @@ public class Pipe {
 
 
     // Minimum height for the visible portion of each pipe
-    private static final int MIN_PIPE_HEIGHT = 200;
+    private static int MIN_PIPE_HEIGHT;
 
     public Pipe(Resources res, int screenWidth, int screenHeight) {
         this.screenHeight = screenHeight;
@@ -28,12 +28,14 @@ public class Pipe {
         topPipe = BitmapFactory.decodeResource(res, R.drawable.pipe_up);
         bottomPipe = BitmapFactory.decodeResource(res, R.drawable.pipe_down);
 
+        pipeWidth= (int) (screenWidth * (0.225f));
+        MIN_PIPE_HEIGHT= screenHeight/7;
         // Scale bitmaps to match the new pipe dimensions
-        topPipe = Bitmap.createScaledBitmap(topPipe, PIPE_WIDTH, screenHeight-gap-MIN_PIPE_HEIGHT*2, false);
-        bottomPipe = Bitmap.createScaledBitmap(bottomPipe, PIPE_WIDTH, screenHeight, false);
+        topPipe = Bitmap.createScaledBitmap(topPipe, pipeWidth, screenHeight-gap-MIN_PIPE_HEIGHT*2, false);
+        bottomPipe = Bitmap.createScaledBitmap(bottomPipe, pipeWidth, screenHeight-gap-MIN_PIPE_HEIGHT*2, false);
 
         // Ensure there's always a visible portion of each pipe by constraining pipeStartY
-        gap = 300; // Adjust gap size
+        gap = (int) (screenHeight * 0.2f); // Adjust gap size
         int maxPipeStartY = screenHeight - gap - MIN_PIPE_HEIGHT;
         int pipeStartY = MIN_PIPE_HEIGHT + (int) (Math.random() * (maxPipeStartY - MIN_PIPE_HEIGHT));
 
@@ -46,7 +48,7 @@ public class Pipe {
         return x;
     }
     public int getPipeWidth(){
-        return PIPE_WIDTH;
+        return pipeWidth;
     }
 
     public void move(int speed) {
@@ -54,7 +56,7 @@ public class Pipe {
     }
 
     public boolean isOffScreen() {
-        return x + PIPE_WIDTH < 0;
+        return x + pipeWidth < 0;
     }
 
     public void draw(Canvas canvas, Paint paint) {
@@ -63,11 +65,11 @@ public class Pipe {
     }
 
     public Rect getTopRect() {
-        return new Rect(x, topY, x + PIPE_WIDTH, topY + topPipe.getHeight());
+        return new Rect(x, topY, x + pipeWidth, topY + topPipe.getHeight());
     }
 
     public Rect getBottomRect() {
-        return new Rect(x, bottomY, x + PIPE_WIDTH, bottomY + bottomPipe.getHeight());
+        return new Rect(x, bottomY, x + pipeWidth, bottomY + bottomPipe.getHeight());
     }
 
     public boolean isPassed() {
@@ -77,4 +79,5 @@ public class Pipe {
     public void setPassed(boolean passed) {
         this.passed = passed;
     }
+
 }

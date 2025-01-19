@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Flappy Bird Clone</string>
     <string name="play">Play</string>
+    <string name="high_score">"High Score: "</string>
 </resources>

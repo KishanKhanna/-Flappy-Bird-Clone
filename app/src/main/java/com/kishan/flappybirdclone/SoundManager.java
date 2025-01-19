@@ -3,17 +3,16 @@ package com.kishan.flappybirdclone;
 
 import android.content.Context;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
-import android.util.Log;
 
 public class SoundManager {
-    private MediaPlayer backgroundMusic;
-    private SoundPool soundPool;
-    private int soundFlap, soundHit, soundDie;
+    private final MediaPlayer backgroundMusic;
+    private final SoundPool soundPool;
+    private final int soundFlap;
+    private final int soundHit;
+    private final int soundDie;
     private boolean isSoundEnabled;
     private boolean isMusicEnabled;
     SharedPreferencesManager sharedPreferencesManager;
@@ -63,14 +62,12 @@ public class SoundManager {
     }
 
     public void playMusic() {
-        Log.d("TAG", "playMusic: ");
         if (isMusicEnabled && !backgroundMusic.isPlaying()) {
             backgroundMusic.start();
         }
     }
 
     public void pauseMusic() {
-        Log.d("TAG", "pauseMusic: ");
         if (backgroundMusic.isPlaying()) {
             backgroundMusic.pause();
         }
@@ -82,12 +79,7 @@ public class SoundManager {
         }
     }
 
-    public void setSoundEnabled(boolean enabled) {
-        isSoundEnabled = enabled;
-    }
-
     public void setMusicEnabled(boolean enabled) {
-        Log.d("TAG", "setMusicEnabled: Run");
         isMusicEnabled = enabled;
         if (enabled) {
             playMusic();
